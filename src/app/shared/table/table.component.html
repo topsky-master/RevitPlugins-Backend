@@ -1,0 +1,68 @@
+<h1>{{table.title}}</h1>
+<button *ngFor="let button of table.buttons" (click)="button.click()" class="btn btn-sm mb-2 mr-1 {{button.class}}">{{button.text}}</button>
+<div class="table-responsive">
+	<form novalidate #form="ngForm">
+		<table class="table table-hover table-striped">
+			<thead class="text-primary">
+				<tr class="text-uppercase">
+					<th *ngFor="let column of table.columns" style="width: {{column.width}}">{{column.headerText}}</th>
+					<th *ngIf="table.actions.length > 0">Action</th>
+				</tr>
+				<!--	filter row	-->
+				<tr class="filter">
+					<th *ngFor="let column of table.columns">
+						<input *ngIf="column.filterable && column.type == undefined" type="text" name="{{column.dataField}}" class="form-control" [(ngModel)]="table.filter[column.dataField]" />
+						
+						<select *ngIf="column.filterable && column.type == 'select'" name="{{column.dataField}}" class="form-control" [(ngModel)]="table.filter[column.dataField]">
+							<option></option>
+							<option *ngFor="let item of table.filter[column.dataField + 's']" value="{{item}}">{{item}}</option>
+						</select>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!--	Skeleton data -->
+				<tr *ngFor="let item of table.skeletons">
+					<td *ngFor="let column of table.columns">
+						<ngx-skeleton-loader count="1"
+							[theme]="{ 'border-radius': '5px', height: '10px', border: '1px solid white' }">
+						</ngx-skeleton-loader>
+					</td>
+					<th *ngIf="table.actions.length > 0">
+						<ngx-skeleton-loader count="1"
+							[theme]="{ 'border-radius': '5px', height: '10px', border: '1px solid white' }">
+						</ngx-skeleton-loader>
+					</th>
+				</tr>
+
+				<tr
+					*ngFor="let row of table.rows | tableFilter: {filters: form.value, columns: table.columns} | paginate: { id: 'paging', itemsPerPage: table.itemsPerPage, currentPage: table.page }">
+					<td *ngFor="let col of table.columns" class="{{col.align ? col.align : 'text-left'}}"
+						[innerHTML]="col.renderer
+						? col.renderer(row, row[col.dataField])
+						: (col.type == 'date'
+							? (row[col.dataField] | date: col.dateFormat)
+							: row[col.dataField])">
+					</td>
+					<td *ngIf="table.actions.length > 0" style="white-space: nowrap;">
+						<ng-container *ngFor="let action of table.actions">
+							<button *ngIf="action.visible ? action.visible(row) : true" [disabled]="row['isInAction' + action.text]" class="btn btn-sm mr-1 {{action.class}}" (click)="action.click(row)">
+								<span *ngIf="row['isInAction' + action.text]" class="spinner-border spinner-border-sm"></span>
+								<span *ngIf="!row['isInAction' + action.text]">{{action.text}}</span>
+							</button>
+						</ng-container>
+					</td>
+				</tr>
+
+				<!--<tr *ngIf="!subscriptions">
+				<td colspan="9" class="text-center">
+					<span class="spinner-border spinner-border-lg align-center"></span>
+				</td>
+			</tr>-->
+			</tbody>
+		</table>
+	</form>
+</div>
+<div class="has-text-centered">
+	<pagination-controls id="paging" (pageChange)="table.page=$event"></pagination-controls>
+</div>

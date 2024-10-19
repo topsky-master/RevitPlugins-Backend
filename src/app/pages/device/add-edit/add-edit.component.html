@@ -1,0 +1,36 @@
+<h1 *ngIf="isAddMode">Add Device</h1>
+<h1 *ngIf="!isAddMode">Edit Device</h1>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+	<div class="form-row">
+		<input type="hidden" formControlName="_id" />
+		<div class="form-group col">
+			<label for="username">User</label>
+			<input type="text" formControlName="username" class="form-control"
+				[ngClass]="{ 'is-invalid': submitted && f.username.errors }" disabled />
+		</div>
+		<div class="form-group col">
+			<div class="form-group col">
+				<label for="deviceId">Device Id</label>
+				<input type="text" formControlName="deviceId" class="form-control"
+					[ngClass]="{ 'is-invalid': submitted && f.deviceId.errors }" disabled />
+			</div>
+		</div>
+	</div>
+	<div class="form-row">
+		<div class="form-group col">
+			<label for="comment">Comment</label>
+			<input type="text" formControlName="comment" class="form-control"
+				[ngClass]="{ 'is-invalid': submitted && f.comment.errors }" />
+			<div *ngIf="submitted && f.comment.errors" class="invalid-feedback">
+				<div *ngIf="f.comment.errors.required">Comment is required</div>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<button [disabled]="loading" class="btn btn-primary">
+			<span *ngIf="loading" class="spinner-border spinner-border-sm mr-1"></span>
+			Save
+		</button>
+		<a routerLink="/device" class="btn btn-link">Cancel</a>
+	</div>
+</form>
